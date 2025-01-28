@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 import os
 
 # Percorso assoluto della directory contenente lo script
@@ -11,64 +11,142 @@ image_dir = os.path.join(base_dir, "images")
 def purchase_item(item, price):
     messagebox.showinfo("Acquisto completato", f"Hai acquistato: {item} per €{price:.2f}")
 
-# Funzione per mostrare gli elementi di una categoria
+# Funzione per creare un'immagine circolare
+def create_circle_image(image_path, size=(100, 100)):
+    try:
+        img = Image.open(image_path)
+        img = img.resize(size, Image.LANCZOS)  # Ingigantiamo l'immagine
+        
+        # Crea una maschera circolare
+        mask = Image.new('L', size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0, size[0], size[1]), fill=255)
+
+        # Applica la maschera all'immagine
+        img.putalpha(mask)
+
+        img = img.convert("RGB")  # Converti a RGB per la visualizzazione corretta
+        img = ImageTk.PhotoImage(img)
+        return img
+    except FileNotFoundError:
+        print(f"File non trovato: {image_path}")
+        return None
+
+# Funzione per mostrare gli articoli di una categoria
 def show_items(category):
     for widget in items_frame.winfo_children():
         widget.destroy()
 
+    row = 0
+    col = 0
+    max_cols = 2  # Numero massimo di colonne per gli articoli
+
     for item, price, color, image_path in categories[category]:
-        item_frame = tk.Frame(items_frame, bg="#ECF0F1", pady=10)
-        item_frame.pack(fill=tk.X, padx=20, pady=5)
+        item_frame = tk.Frame(items_frame, bg="#2C3E50", pady=20)
+        item_frame.grid(row=row, column=col, padx=30, pady=10, sticky="w")
 
         # Calcola il percorso assoluto per l'immagine
         full_image_path = os.path.join(image_dir, image_path)
 
-        try:
-            img = Image.open(full_image_path)
-            img = img.resize((50, 50), Image.LANCZOS)  # Sostituito ANTIALIAS con LANCZOS
-            img = ImageTk.PhotoImage(img)
-        except FileNotFoundError:
-            print(f"File non trovato: {full_image_path}")
-            continue
+        img = create_circle_image(full_image_path, size=(120, 120))  # Circolare e ingrandita
 
-        img_label = tk.Label(item_frame, image=img, bg="#ECF0F1")
-        img_label.image = img  # Necessario per mantenere un riferimento all'immagine
-        img_label.pack(side=tk.LEFT, padx=10)
+        if img:
+            img_label = tk.Label(item_frame, image=img, bg="#2C3E50")
+            img_label.image = img  # Necessario per mantenere un riferimento all'immagine
+            img_label.pack(side=tk.TOP, pady=10)
 
         item_button = tk.Button(
             item_frame,
             text=f"{item} - €{price:.2f}",
-            font=("Arial", 16),
-            width=20,
+            font=("Arial", 18, "bold"),
+            width=30,
+            height=2,
             bg=color,
             fg="white",
             command=lambda i=item, p=price: purchase_item(i, p)
         )
-        item_button.pack(side=tk.LEFT, padx=10)
+        item_button.pack(side=tk.TOP, pady=10)
+
+        col += 1
+        if col == max_cols:
+            col = 0
+            row += 1
+
+# Funzione per mostrare tutti gli articoli sulla schermata Home
+def show_all_items():
+    for widget in items_frame.winfo_children():
+        widget.destroy()
+
+    row = 0
+    col = 0
+    max_cols = 3  # Numero massimo di colonne per gli articoli
+
+    for category in categories:
+        for item, price, color, image_path in categories[category]:
+            item_frame = tk.Frame(items_frame, bg="#2C3E50", pady=20)
+            item_frame.grid(row=row, column=col, padx=30, pady=10, sticky="w")
+
+            # Calcola il percorso assoluto per l'immagine
+            full_image_path = os.path.join(image_dir, image_path)
+
+            img = create_circle_image(full_image_path, size=(120, 120))  # Circolare e ingrandita
+
+            if img:
+                img_label = tk.Label(item_frame, image=img, bg="#2C3E50")
+                img_label.image = img  # Necessario per mantenere un riferimento all'immagine
+                img_label.pack(side=tk.TOP, pady=10)
+
+            item_button = tk.Button(
+                item_frame,
+                text=f"{item} - €{price:.2f}",
+                font=("Arial", 18, "bold"),
+                width=30,
+                height=2,
+                bg=color,
+                fg="white",
+                command=lambda i=item, p=price: purchase_item(i, p)
+            )
+            item_button.pack(side=tk.TOP, pady=10)
+
+            col += 1
+            if col == max_cols:
+                col = 0
+                row += 1
 
 # Configurazione della finestra principale
 root = tk.Tk()
 root.title("Vending Machine")
-root.geometry("1200x700")
+root.geometry("1920x1080")
 root.resizable(False, False)
+root.config(bg="#2C3E50")
 
 # Titolo della vending machine
-title_label = tk.Label(root, text="Benvenuto nella Vending Machine", font=("Arial", 24, "bold"), pady=20)
+title_label = tk.Label(root, text="Benvenuto nella Vending Machine", font=("Arial", 24, "bold"), pady=30, fg="white", bg="#2C3E50")
 title_label.pack()
 
 # Frame principale per la barra laterale e gli articoli
-main_frame = tk.Frame(root)
+main_frame = tk.Frame(root, bg="#2C3E50")
 main_frame.pack(fill=tk.BOTH, expand=True)
 
 # Sidebar per le categorie
-sidebar = tk.Frame(main_frame, bg="#2C3E50", width=250)
+sidebar = tk.Frame(main_frame, bg="#34495E", width=250)
 sidebar.pack(side=tk.LEFT, fill=tk.Y)
 
-sidebar_label = tk.Label(sidebar, text="Categorie", font=("Arial", 20, "bold"), bg="#2C3E50", fg="white")
-sidebar_label.pack(pady=20)
+# Pulsante Home (in alto sopra le categorie)
+home_button = tk.Button(
+    sidebar,
+    text="Home",
+    font=("Arial", 18, "bold"),
+    width=15,
+    height=2,
+    bg="#34495E",
+    fg="white",
+    command=show_all_items
+)
+home_button.pack(pady=20)
 
 # Frame per mostrare gli oggetti
-items_frame = tk.Frame(main_frame, bg="#ECF0F1")
+items_frame = tk.Frame(main_frame, bg="#2C3E50")
 items_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
 # Definizione delle categorie e degli oggetti con prezzi, colori e immagini
@@ -96,17 +174,21 @@ for category in categories:
     category_button = tk.Button(
         sidebar,
         text=category,
-        font=("Arial", 16),
+        font=("Arial", 18, "bold"),
         width=15,
+        height=2,
         bg="#34495E",
         fg="white",
         command=lambda c=category: show_items(c)
     )
-    category_button.pack(pady=10)
+    category_button.pack(pady=20)
 
 # Footer
-footer_label = tk.Label(root, text="Grazie per aver usato la nostra Vending Machine!", font=("Arial", 14), pady=10)
+footer_label = tk.Label(root, text="Grazie per aver usato la nostra Vending Machine!", font=("Arial", 14), pady=20, fg="white", bg="#2C3E50")
 footer_label.pack(side=tk.BOTTOM)
+
+# Mostra gli articoli inizialmente
+show_all_items()
 
 # Avvio della finestra principale
 root.mainloop()
