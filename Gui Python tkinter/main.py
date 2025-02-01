@@ -58,8 +58,8 @@ def show_items(category):
         item_button = tk.Button(
             item_frame,
             text=f"{item} - €{price:.2f}",
-            font=("Arial", 18, "bold"),
-            width=30,
+            font=("Arial", 24, "bold"),
+            width=24,
             height=2,
             bg=color,
             fg="white",
@@ -136,7 +136,7 @@ sidebar.pack(side=tk.LEFT, fill=tk.Y)
 home_button = tk.Button(
     sidebar,
     text="Home",
-    font=("Arial", 18, "bold"),
+    font=("Arial", 28, "bold"),
     width=15,
     height=2,
     bg="#34495E",
@@ -174,7 +174,7 @@ for category in categories:
     category_button = tk.Button(
         sidebar,
         text=category,
-        font=("Arial", 18, "bold"),
+        font=("Arial", 24, "bold"),
         width=15,
         height=2,
         bg="#34495E",
@@ -184,11 +184,12 @@ for category in categories:
     category_button.pack(pady=20)
 
 # Footer
-footer_label = tk.Label(root, text="Grazie per aver usato la nostra Vending Machine!", font=("Arial", 14), pady=20, fg="white", bg="#2C3E50")
+footer_label = tk.Label(root, text="Smart Accessible Vend by Lorrix", font=("Arial", 14), pady=20, fg="white", bg="#2C3E50")
 footer_label.pack(side=tk.BOTTOM)
 
 # Mostra gli articoli inizialmente
 show_all_items()
 
 # Avvio della finestra principale
-root.mainloop()
+root.mainloop()  
+
