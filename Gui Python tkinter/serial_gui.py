@@ -2,14 +2,36 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk, ImageDraw
 import os
+import serial
+import time
 
 # Percorso assoluto della directory contenente lo script
 base_dir = os.path.dirname(os.path.abspath(__file__))
 image_dir = os.path.join(base_dir, "images")
 
+# Configurazione della connessione seriale con ESP32 sulla porta COM3
+# Modifica la porta e il baud rate se necessario
+ser = serial.Serial('COM3', 115200, timeout=1)
+time.sleep(2)  # Attendi che la connessione seriale si stabilisca
+if ser.is_open:
+    print("Connessione stabilita con successo")
+    
+
+
 # Funzione per gestire l'acquisto di un elemento
 def purchase_item(item, price):
+    # Mostra una finestra di messaggio di conferma dell'acquisto
     messagebox.showinfo("Acquisto completato", f"Hai acquistato: {item} per €{price:.2f}")
+    
+    # Invia i dati via seriale all'ESP32
+    purchase_message = f"Acquisto: {item} - €{price:.2f}\n"
+    if ser.is_open:
+        ser.write(purchase_message.encode())  # Invia il messaggio seriale all'ESP32
+        print(f"Messaggio inviato a ESP32: {purchase_message}")
+        
+        # Invia il comando per girare il servo di 30 gradi
+        ser.write(b'ROTATE_30')  # Comando per girare il servo di 30 gradi
+        print("Comando per girare il servo inviato!")
 
 # Funzione per creare un'immagine circolare
 def create_circle_image(image_path, size=(100, 100)):
@@ -116,7 +138,7 @@ def show_all_items():
 # Configurazione della finestra principale
 root = tk.Tk()
 root.title("Vending Machine")
-root.geometry("z")
+root.geometry("800x600")
 root.resizable(False, False)
 root.config(bg="#2C3E50")
 
@@ -191,5 +213,7 @@ footer_label.pack(side=tk.BOTTOM)
 show_all_items()
 
 # Avvio della finestra principale
-root.mainloop()  
+root.mainloop()
 
+# Chiudi la connessione seriale quando il programma termina
+ser.close()
