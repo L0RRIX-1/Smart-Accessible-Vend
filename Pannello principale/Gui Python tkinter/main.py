@@ -116,9 +116,95 @@ def show_all_items():
 # Configurazione della finestra principale
 root = tk.Tk()
 root.title("Vending Machine")
-root.geometry("z")
+root.geometry("1860x1000")
 root.resizable(False, False)
 root.config(bg="#2C3E50")
+
+# Funzione per cercare gli articoli
+def search_items(event=None):
+    query = search_entry.get().lower().strip()
+
+    # Pulisce la visualizzazione corrente
+    for widget in items_frame.winfo_children():
+        widget.destroy()
+
+    # Controlla se la ricerca è vuota, in tal caso mostra tutto
+    if query == "":
+        show_all_items()
+        return
+
+    row = 0
+    col = 0
+    max_cols = 3
+    found = False  # Flag per controllare se sono stati trovati risultati
+
+    # Cerca in tutte le categorie
+    for category in categories:
+        for item, price, color, image_path in categories[category]:
+            # Controlla se il nome dell'articolo contiene il testo inserito
+            if query in item.lower():
+                found = True
+                item_frame = tk.Frame(items_frame, bg="#2C3E50", pady=20)
+                item_frame.grid(row=row, column=col, padx=30, pady=10, sticky="w")
+
+                full_image_path = os.path.join(image_dir, image_path)
+                img = create_circle_image(full_image_path, size=(120, 120))
+
+                if img:
+                    img_label = tk.Label(item_frame, image=img, bg="#2C3E50")
+                    img_label.image = img
+                    img_label.pack(side=tk.TOP, pady=10)
+
+                item_button = tk.Button(
+                    item_frame,
+                    text=f"{item} - €{price:.2f}",
+                    font=("Arial", 18, "bold"),
+                    width=30,
+                    height=2,
+                    bg=color,
+                    fg="white",
+                    command=lambda i=item, p=price: purchase_item(i, p)
+                )
+                item_button.pack(side=tk.TOP, pady=10)
+
+                col += 1
+                if col == max_cols:
+                    col = 0
+                    row += 1
+
+    # Se nessun risultato è stato trovato, mostra un messaggio
+    if not found:
+        no_result_label = tk.Label(
+            items_frame,
+            text="Nessun articolo trovato.",
+            font=("Arial", 24, "bold"),
+            fg="white",
+            bg="#2C3E50"
+        )
+        no_result_label.pack(pady=50)
+
+# Barra di ricerca (in alto a destra)
+search_frame = tk.Frame(root, bg="#2C3E50")
+search_frame.place(x=1500, y=20)  # Posizione in alto a destra
+
+search_label = tk.Label(search_frame, text="Cerca:", font=("Arial", 18), fg="white", bg="#2C3E50")
+search_label.pack(side=tk.LEFT, padx=5)
+
+search_entry = tk.Entry(search_frame, font=("Arial", 18), width=20)
+search_entry.pack(side=tk.LEFT, padx=5)
+
+search_button = tk.Button(
+    search_frame,
+    text="Cerca",
+    font=("Arial", 18),
+    bg="#16A085",
+    fg="white",
+    command=lambda: search_items()  # Esegui la ricerca al clic
+)
+search_button.pack(side=tk.LEFT, padx=5)
+
+# Aggiunta dell'evento per la ricerca quando si digita
+search_entry.bind("<KeyRelease>", search_items)
 
 # Titolo della vending machine
 title_label = tk.Label(root, text="Benvenuto nella Vending Machine", font=("Arial", 24, "bold"), pady=30, fg="white", bg="#2C3E50")
@@ -191,5 +277,4 @@ footer_label.pack(side=tk.BOTTOM)
 show_all_items()
 
 # Avvio della finestra principale
-root.mainloop()  
-
+root.mainloop()
