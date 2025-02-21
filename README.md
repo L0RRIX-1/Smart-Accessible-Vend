@@ -37,7 +37,7 @@ Dedicato a spazi con clienti abituali e costanti, come uffici o ospedali.
 - Eliminazione della funzione di pagamento, con acquisti registrati e accreditati periodicamente.
 
 ## Impatto Ambientale
-- Quasi tutte le componenti interne dispongono della certificazione RohS.
+- Quasi tutte i componenti interne dispongono della certificazione RohS.
 - Tutte le plastiche usate saranno riciclabili al 100%.
 - Struttura creata con materiali ecosostenibili.
 - Sensore di movimento per attivare luci e schermi solo quando necessario, limitando il consumo elettrico.
