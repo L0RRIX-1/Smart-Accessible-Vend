@@ -6,10 +6,65 @@ import os
 # Percorso assoluto della directory contenente lo script
 base_dir = os.path.dirname(os.path.abspath(__file__))
 image_dir = os.path.join(base_dir, "images")
+def complete_purchase(window, item, price):
+    print(f"Acquisto completato: {item} - {price}€")
+    window.destroy()
+
 
 # Funzione per gestire l'acquisto di un elemento
-def purchase_item(item, price):
-    messagebox.showinfo("Acquisto completato", f"Hai acquistato: {item} per €{price:.2f}")
+def confirm_purchase(item, price, image_path):
+    confirm_window = tk.Toplevel(root)
+    confirm_window.title("Conferma Acquisto")
+    confirm_window.geometry("400x400")
+    confirm_window.config(bg="#2C3E50")
+
+    # Caricamento immagine
+    full_image_path = os.path.join(image_dir, image_path)
+    img = create_circle_image(full_image_path, size=(200, 200))
+    if img:
+        img_label = tk.Label(confirm_window, image=img, bg="#2C3E50")
+        img_label.image = img  # Mantiene il riferimento all'immagine
+        img_label.pack(pady=20)
+
+    label = tk.Label(confirm_window, text=f"Acquistare {item} per €{price:.2f}?", font=("Arial", 16), fg="white", bg="#2C3E50")
+    label.pack(pady=10)
+
+    button_frame = tk.Frame(confirm_window, bg="#2C3E50")
+    button_frame.pack(pady=20)
+
+    
+
+    confirm_button = tk.Button(
+        button_frame, text="✔", font=("Arial", 20, "bold"), fg="white", bg="#27AE60",
+        width=5, height=2, command=lambda: complete_purchase(confirm_window, item, price)
+    )
+    confirm_button.grid(row=0, column=0, padx=10)
+
+    cancel_button = tk.Button(
+        button_frame, text="✖", font=("Arial", 20, "bold"), fg="white", bg="#E74C3C",
+        width=5, height=2, command=confirm_window.destroy
+    )
+    cancel_button.grid(row=0, column=1, padx=10)
+import time
+
+def complete_purchase(window, item, price):
+    # Cancella il contenuto della finestra di conferma
+    for widget in window.winfo_children():
+        widget.destroy()
+    
+    window.title("Acquisto Completato")
+
+    # Icona di spunta verde
+    check_label = tk.Label(window, text="✔", font=("Arial", 50, "bold"), fg="#27AE60", bg="#2C3E50")
+    check_label.pack(pady=20)
+
+    # Messaggio di successo
+    success_label = tk.Label(window, text="Acquisto completato con successo!", font=("Arial", 16), fg="white", bg="#2C3E50")
+    success_label.pack(pady=10)
+
+    # Chiude la finestra dopo 3 secondi
+    window.after(3000, window.destroy)
+
 
 # Funzione per creare un'immagine circolare
 def create_circle_image(image_path, size=(100, 100)):
@@ -31,6 +86,10 @@ def create_circle_image(image_path, size=(100, 100)):
     except FileNotFoundError:
         print(f"File non trovato: {image_path}")
         return None
+# Funzione per gestire la selezione di un articolo
+def purchase_item(item, price, image_path):
+    confirm_purchase(item, price, image_path)
+
 
 # Funzione per mostrare gli articoli di una categoria
 def show_items(category):
@@ -63,7 +122,7 @@ def show_items(category):
             height=2,
             bg=color,
             fg="white",
-            command=lambda i=item, p=price: purchase_item(i, p)
+            command=lambda i=item, p=price, img=image_path: purchase_item(i, p, img)
         )
         item_button.pack(side=tk.TOP, pady=10)
 
@@ -104,7 +163,7 @@ def show_all_items():
                 height=2,
                 bg=color,
                 fg="white",
-                command=lambda i=item, p=price: purchase_item(i, p)
+                command=lambda i=item, p=price, img=image_path: purchase_item(i, p, img)
             )
             item_button.pack(side=tk.TOP, pady=10)
 
@@ -163,7 +222,7 @@ def search_items(event=None):
                     height=2,
                     bg=color,
                     fg="white",
-                    command=lambda i=item, p=price: purchase_item(i, p)
+                    command=lambda i=item, p=price, img=image_path: purchase_item(i, p, img)
                 )
                 item_button.pack(side=tk.TOP, pady=10)
 
