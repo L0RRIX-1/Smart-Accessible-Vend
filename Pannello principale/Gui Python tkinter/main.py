@@ -15,7 +15,7 @@ def complete_purchase(window, item, price):
 def confirm_purchase(item, price, image_path):
     confirm_window = tk.Toplevel(root)
     confirm_window.title("Conferma Acquisto")
-    confirm_window.geometry("400x400")
+    confirm_window.geometry("400x200")
     confirm_window.config(bg="#2C3E50")
 
     # Caricamento immagine
