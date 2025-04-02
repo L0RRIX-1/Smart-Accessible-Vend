@@ -6,10 +6,22 @@ import os
 # Percorso assoluto della directory contenente lo script
 base_dir = os.path.dirname(os.path.abspath(__file__))
 image_dir = os.path.join(base_dir, "images")
+
+# Dati degli articoli
+categories = {
+    "Categoria 1": [
+        ("Articolo 1", 10.99, "#E74C3C", "articolo1.png"),
+        ("Articolo 2", 20.99, "#3498DB", "articolo2.png"),
+    ],
+    "Categoria 2": [
+        ("Articolo 3", 15.49, "#1ABC9C", "articolo3.png"),
+        ("Articolo 4", 5.99, "#9B59B6", "articolo4.png"),
+    ]
+}
+
 def complete_purchase(window, item, price):
     print(f"Acquisto completato: {item} - {price}€")
     window.destroy()
-
 
 def confirm_purchase(item, price, image_path):
     confirm_window = tk.Toplevel(root)
@@ -54,27 +66,6 @@ def confirm_purchase(item, price, image_path):
     )
     cancel_button.grid(row=0, column=1, padx=5)
 
-import time
-
-def complete_purchase(window, item, price):
-    # Cancella il contenuto della finestra di conferma
-    for widget in window.winfo_children():
-        widget.destroy()
-    
-    window.title("Acquisto Completato")
-
-    # Icona di spunta verde
-    check_label = tk.Label(window, text="✔", font=("Arial", 50, "bold"), fg="#27AE60", bg="#2C3E50")
-    check_label.pack(pady=20)
-
-    # Messaggio di successo
-    success_label = tk.Label(window, text="Acquisto completato con successo!", font=("Arial", 16), fg="white", bg="#2C3E50")
-    success_label.pack(pady=10)
-
-    # Chiude la finestra dopo 3 secondi
-    window.after(3000, window.destroy)
-
-
 # Funzione per creare un'immagine circolare
 def create_circle_image(image_path, size=(100, 100)):
     try:
@@ -95,10 +86,10 @@ def create_circle_image(image_path, size=(100, 100)):
     except FileNotFoundError:
         print(f"File non trovato: {image_path}")
         return None
+
 # Funzione per gestire la selezione di un articolo
 def purchase_item(item, price, image_path):
     confirm_purchase(item, price, image_path)
-
 
 # Funzione per mostrare gli articoli di una categoria
 def show_items(category):
@@ -283,9 +274,21 @@ title_label.pack()
 main_frame = tk.Frame(root, bg="#2C3E50")
 main_frame.pack(fill=tk.BOTH, expand=True)
 
+# Canvas con scrollbar
+canvas = tk.Canvas(main_frame)
+canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+scrollbar = tk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+scrollbar.pack(side=tk.RIGHT, fill="y")
+canvas.config(yscrollcommand=scrollbar.set)
+
+# Frame per contenuti scorrevoli
+content_frame = tk.Frame(canvas, bg="#2C3E50")
+canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
 # Sidebar per le categorie
-sidebar = tk.Frame(main_frame, bg="#34495E", width=250)
-sidebar.pack(side=tk.LEFT, fill=tk.Y)
+sidebar = tk.Frame(content_frame, bg="#34495E", width=250)
+sidebar.grid(row=0, column=0, sticky="ns")
 
 # Pulsante Home (in alto sopra le categorie)
 home_button = tk.Button(
@@ -298,31 +301,7 @@ home_button = tk.Button(
     fg="white",
     command=show_all_items
 )
-home_button.pack(pady=20)
-
-# Frame per mostrare gli oggetti
-items_frame = tk.Frame(main_frame, bg="#2C3E50")
-items_frame.pack(fill=tk.BOTH, expand=True)
-
-# Definizione delle categorie e degli oggetti con prezzi, colori e immagini
-categories = {
-    "Cibo": [
-        ("Panino", 4.50, "#E74C3C", "panino.png"),
-        ("Pizza", 6.00, "#C0392B", "pizza.png"),
-        ("Insalata", 5.00, "#27AE60", "insalata.png"),
-    ],
-    "Bevande": [
-        ("Acqua", 1.00, "#3498DB", "acqua.png"),
-        ("Caffè", 1.50, "#6C3483", "caffe.png"),
-        ("Tè", 1.20, "#1ABC9C", "te.png"),
-        ("Succo", 2.00, "#F1C40F", "succo.png"),
-    ],
-    "Snack": [
-        ("Barretta", 1.80, "#E67E22", "barretta.png"),
-        ("Patatine", 2.50, "#D35400", "patatine.png"),
-        ("Cioccolato", 2.00, "#8E44AD", "cioccolato.png"),
-    ],
-}
+home_button.grid(row=0, column=0, pady=20)
 
 # Creazione dei pulsanti per le categorie
 for category in categories:
@@ -336,15 +315,13 @@ for category in categories:
         fg="white",
         command=lambda c=category: show_items(c)
     )
-    category_button.pack(pady=20)
+    category_button.grid(row=len(categories)+1, column=0, pady=10)
 
-# Footer
-footer_label = tk.Label(root, text="Smart Accessible Vend by Lorrix", font=("Arial", 14), pady=20, fg="white", bg="#2C3E50")
-footer_label.pack(side=tk.BOTTOM)
+# Frame per gli articoli
+items_frame = tk.Frame(content_frame, bg="#2C3E50")
+items_frame.grid(row=0, column=1, sticky="nw")
 
-# Mostra gli articoli inizialmente
+# Mostra la schermata iniziale con tutti gli articoli
 show_all_items()
-
-
 
 root.mainloop()
