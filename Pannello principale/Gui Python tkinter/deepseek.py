@@ -3,22 +3,26 @@ from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import os
 
-# Configurazioni stilistiche
-LARGE_FONT = ('Helvetica', 18)
-BUTTON_STYLE = {
-    'font': ('Helvetica', 20, 'bold'),
-    'padding': 15,
-    'width': 15
-}
-IMAGE_SIZE = 200  # Aumento dimensione immagini
-BG_COLOR = '#F5F5F5'
-PRIMARY_COLOR = '#2E7D32'
-TEXT_COLOR = '#263238'
+# Configurazioni stilistiche - TEMA SCURO
+DARK_BG = '#121212'
+DARK_FG = '#FFFFFF'
+DARK_ACCENT = '#1F1F1F'
+PRIMARY_COLOR = '#4CAF50'  # Verde acceso per contrasto
+SECONDARY_COLOR = '#FF5722'  # Arancione per azioni
+TEXT_COLOR = '#E0E0E0'
 
-# Verifica che la cartella images esista
+LARGE_FONT = ('Helvetica', 20)
+BUTTON_STYLE = {
+    'font': ('Helvetica', 22, 'bold'),
+    'padding': 20,
+    'width': 18
+}
+IMAGE_SIZE = 180  # Dimensione ottimizzata per tema scuro
+
+# Verifica cartella immagini
 if not os.path.exists('images'):
     os.makedirs('images')
-    messagebox.showwarning("Attenzione", "La cartella 'images' è stata creata. Inserisci le immagini dei prodotti.")
+    messagebox.showwarning("Attenzione", "Creata cartella 'images'. Inserire le immagini dei prodotti.")
 
 products = {
     'snack': {
@@ -37,21 +41,36 @@ products = {
     }
 }
 
-class VendingMachine(tk.Tk):
+class DarkVendingMachine(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Distributore Automatico")
-        self.geometry("1024x768")  # Schermo più grande
-        self.configure(bg=BG_COLOR)
+        self.title("DARK VEND")
+        self.geometry("1200x800")  # Schermo più ampio
+        self.configure(bg=DARK_BG)
         
         # Configurazione stili globali
         self.style = ttk.Style()
-        self.style.configure('Main.TFrame', background=BG_COLOR)
-        self.style.configure('Product.TFrame', background='white', borderwidth=2, relief='groove')
-        self.style.configure('Nav.TButton', font=('Helvetica', 16), padding=10)
-        self.style.configure('Action.TButton', font=('Helvetica', 16, 'bold'), padding=10)
-        self.style.configure('Success.TButton', font=('Helvetica', 18, 'bold'), padding=15, foreground='white', background='#388E3C')
-        self.style.configure('Danger.TButton', font=('Helvetica', 18, 'bold'), padding=15, foreground='white', background='#D32F2F')
+        self.style.theme_use('clam')  # Tema più adattabile
+        
+        # Stili personalizzati
+        self.style.configure('Main.TFrame', background=DARK_BG)
+        self.style.configure('Dark.TFrame', background=DARK_ACCENT)
+        self.style.configure('Product.TFrame', background=DARK_ACCENT, 
+                           borderwidth=0, relief='flat')
+        self.style.configure('Nav.TButton', font=('Helvetica', 18), 
+                           padding=12, background=DARK_ACCENT, 
+                           foreground=TEXT_COLOR)
+        self.style.configure('Action.TButton', font=('Helvetica', 18, 'bold'), 
+                            padding=15, background=PRIMARY_COLOR, 
+                            foreground='white')
+        self.style.configure('Title.TLabel', font=('Helvetica', 32, 'bold'), 
+                           foreground=PRIMARY_COLOR, background=DARK_BG)
+        self.style.configure('Subtitle.TLabel', font=('Helvetica', 24), 
+                            foreground=TEXT_COLOR, background=DARK_BG)
+        self.style.configure('Product.TLabel', font=('Helvetica', 18), 
+                           foreground=TEXT_COLOR, background=DARK_ACCENT)
+        self.style.configure('Price.TLabel', font=('Helvetica', 22, 'bold'), 
+                           foreground=PRIMARY_COLOR, background=DARK_ACCENT)
         
         container = ttk.Frame(self, style='Main.TFrame')
         container.pack(side="top", fill="both", expand=True)
@@ -79,74 +98,84 @@ class HomeFrame(BaseFrame):
     def __init__(self, parent, controller):
         super().__init__(parent, controller)
         
-        ttk.Label(self, text="DISTRIBUTORE AUTOMATICO", 
-                 font=('Helvetica', 28, 'bold'), 
-                 foreground=PRIMARY_COLOR).pack(pady=40)
+        # Titolo principale
+        ttk.Label(self, text="DARK VEND", style='Title.TLabel').pack(pady=40)
         
-        ttk.Label(self, text="Seleziona categoria:", 
-                 font=LARGE_FONT, 
-                 foreground=TEXT_COLOR).pack(pady=20)
-
-        btn_style = ttk.Style()
-        btn_style.configure('Big.TButton', font=BUTTON_STYLE['font'], 
-                          padding=BUTTON_STYLE['padding'])
+        # Sottotitolo
+        ttk.Label(self, text="Seleziona categoria:", style='Subtitle.TLabel').pack(pady=30)
         
-        ttk.Button(self, text="🍔 SNACK", 
-                  style='Big.TButton',
+        # Pulsanti categoria
+        btn_frame = ttk.Frame(self, style='Main.TFrame')
+        btn_frame.pack(pady=20)
+        
+        ttk.Button(btn_frame, text="🍔 SNACK", 
+                  style='Action.TButton',
                   command=lambda: controller.show_frame(SnacksFrame)
-                  ).pack(pady=15)
+                  ).pack(pady=25, ipadx=30)
         
-        ttk.Button(self, text="🥤 BEVANDE", 
-                  style='Big.TButton',
+        ttk.Button(btn_frame, text="🥤 BEVANDE", 
+                  style='Action.TButton',
                   command=lambda: controller.show_frame(DrinksFrame)
-                  ).pack(pady=15)
+                  ).pack(pady=25, ipadx=30)
 
 class ProductFrame(BaseFrame):
     def create_products(self, category):
-        # Pulsante ritorno
+        # Pulsante ritorno con stile migliorato
         ttk.Button(self, text="◀ HOME", 
                   style='Nav.TButton',
                   command=lambda: self.controller.show_frame(HomeFrame)
-                  ).grid(row=0, column=0, padx=20, pady=20, sticky="nw")
+                  ).grid(row=0, column=0, padx=30, pady=30, sticky="nw")
+
+        # Titolo categoria
+        category_title = ttk.Label(self, text=category.upper(), 
+                                 style='Subtitle.TLabel')
+        category_title.grid(row=0, column=1, columnspan=2, pady=30)
 
         # Griglia prodotti
         row, col = 1, 0
         for product, info in products[category].items():
-            product_frame = ttk.Frame(self, padding=20, style='Product.TFrame')
-            product_frame.grid(row=row, column=col, padx=20, pady=20)
+            product_frame = ttk.Frame(self, style='Product.TFrame', padding=15)
+            product_frame.grid(row=row, column=col, padx=25, pady=25, ipadx=10, ipady=10)
 
-            # Caricamento immagine con gestione errori
+            # Cornice immagine con bordo sottile
+            img_frame = ttk.Frame(product_frame, style='Dark.TFrame', padding=5)
+            img_frame.pack(pady=(0, 15))
+
+            # Caricamento immagine
             try:
                 img_path = os.path.join('images', info['image'])
                 img = Image.open(img_path).resize((IMAGE_SIZE, IMAGE_SIZE))
                 photo = ImageTk.PhotoImage(img)
                 
-                img_label = ttk.Label(product_frame)
-                img_label.image = photo  # Mantieni riferimento all'immagine
+                img_label = ttk.Label(img_frame)
+                img_label.image = photo
                 img_label.configure(image=photo)
-                img_label.pack(pady=10)
+                img_label.pack()
                 
             except Exception as e:
-                print(f"Errore caricamento immagine {info['image']}: {str(e)}")
-                img_label = ttk.Label(product_frame, text="[IMMAGINE NON TROVATA]", 
-                                     font=('Helvetica', 12), foreground='red')
-                img_label.pack(pady=10)
+                error_img = Image.new('RGB', (IMAGE_SIZE, IMAGE_SIZE), color=DARK_ACCENT)
+                photo = ImageTk.PhotoImage(error_img)
+                img_label = ttk.Label(img_frame, image=photo, 
+                                    text="NO IMAGE", compound='center',
+                                    style='Product.TLabel')
+                img_label.image = photo
+                img_label.pack()
             
+            # Nome prodotto e prezzo
             ttk.Label(product_frame, text=product.upper(), 
-                     font=('Helvetica', 16, 'bold'),
-                     foreground=TEXT_COLOR).pack()
+                     style='Product.TLabel').pack()
             ttk.Label(product_frame, text=f"€{info['price']:.2f}", 
-                     font=('Helvetica', 20),
-                     foreground=PRIMARY_COLOR).pack(pady=5)
+                     style='Price.TLabel').pack(pady=10)
             
+            # Pulsante selezione
             ttk.Button(product_frame, text="SELEZIONA",
                       style='Action.TButton',
                       command=lambda p=product, pr=info['price']: 
                       ConfirmWindow(self.controller, p, pr)
-                      ).pack(pady=10)
+                      ).pack(fill='x', pady=(10, 0))
 
             col += 1
-            if col > 1:  # Solo 2 colonne per migliore leggibilità
+            if col > 2:  # 3 colonne per layout bilanciato
                 col = 0
                 row += 1
 
@@ -163,40 +192,107 @@ class DrinksFrame(ProductFrame):
 class ConfirmWindow(tk.Toplevel):
     def __init__(self, controller, product, price):
         super().__init__(controller)
-        self.title("Conferma Acquisto")
-        self.geometry("500x300")
-        self.configure(bg=BG_COLOR)
+        self.product = product
+        self.title("CONFERMA ACQUISTO")
+        self.geometry("500x400")
+        self.configure(bg=DARK_BG)
+        self.resizable(False, False)
+        
+        # Centra la finestra
+        self.update_idletasks()
+        width = self.winfo_width()
+        height = self.winfo_height()
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry(f'+{x}+{y}')
         
         main_frame = ttk.Frame(self, style='Main.TFrame')
-        main_frame.pack(expand=True, fill='both', padx=20, pady=20)
+        main_frame.pack(expand=True, fill='both', padx=30, pady=30)
         
-        ttk.Label(main_frame, text="CONFERMA ACQUISTO", 
+        # Contenuto principale
+        content_frame = ttk.Frame(main_frame, style='Main.TFrame')
+        content_frame.pack(expand=True, fill='both')
+        
+        # Icona prodotto
+        icon_frame = ttk.Frame(content_frame, style='Dark.TFrame', width=120, height=120)
+        icon_frame.pack(pady=(0, 20))
+        icon_frame.pack_propagate(False)
+        
+        try:
+            category = 'snack' if product in products['snack'] else 'bevande'
+            img_path = os.path.join('images', products[category][product]['image'])
+            img = Image.open(img_path).resize((100, 100))
+            photo = ImageTk.PhotoImage(img)
+            icon_label = ttk.Label(icon_frame, image=photo, background=DARK_ACCENT)
+            icon_label.image = photo
+            icon_label.pack(expand=True)
+        except:
+            icon_label = ttk.Label(icon_frame, text="🛒", font=('Helvetica', 48),
+                                 style='Product.TLabel')
+            icon_label.pack(expand=True)
+        
+        # Messaggio di conferma
+        ttk.Label(content_frame, text="CONFERMI L'ACQUISTO?", 
+                 font=('Helvetica', 20, 'bold'),
+                 foreground=TEXT_COLOR, background=DARK_BG).pack(pady=(0, 10))
+        
+        # Nome prodotto
+        ttk.Label(content_frame, text=product.upper(), 
                  font=('Helvetica', 24, 'bold'),
-                 foreground=PRIMARY_COLOR).pack(pady=10)
+                 foreground=PRIMARY_COLOR, background=DARK_BG).pack()
         
-        ttk.Label(main_frame, text=product.upper(), 
-                 font=('Helvetica', 28),
-                 foreground=TEXT_COLOR).pack(pady=5)
+        # Prezzo
+        ttk.Label(content_frame, text=f"€{price:.2f}", 
+                 font=('Helvetica', 28, 'bold'),
+                 foreground=PRIMARY_COLOR, background=DARK_BG).pack(pady=15)
         
-        ttk.Label(main_frame, text=f"€{price:.2f}", 
-                 font=('Helvetica', 32, 'bold'),
-                 foreground=PRIMARY_COLOR).pack(pady=10)
+        # Pulsanti azione - ORA BEN VISIBILI
+        btn_frame = ttk.Frame(content_frame, style='Main.TFrame')
+        btn_frame.pack(fill='x', pady=(20, 0))
         
-        btn_frame = ttk.Frame(main_frame)
-        btn_frame.pack(pady=20)
+        # Pulsante CONFERMA (verde grande)
+        confirm_btn = tk.Button(btn_frame, 
+                              text="CONFERMA", 
+                              font=('Helvetica', 16, 'bold'),
+                              bg='#4CAF50',
+                              fg='white',
+                              activebackground='#388E3C',
+                              activeforeground='white',
+                              relief='flat',
+                              bd=0,
+                              padx=30,
+                              pady=12,
+                              command=self.confirm)
+        confirm_btn.pack(side='left', expand=True, fill='x', padx=5)
         
-        ttk.Button(btn_frame, text="CONFERMA", 
-                  style='Success.TButton',
-                  command=self.confirm).pack(side="left", padx=15)
-        ttk.Button(btn_frame, text="ANNULLA", 
-                  style='Danger.TButton',
-                  command=self.destroy).pack(side="right", padx=15)
+        # Pulsante ANNULLA (rosso grande)
+        cancel_btn = tk.Button(btn_frame, 
+                             text="ANNULLA", 
+                             font=('Helvetica', 16, 'bold'),
+                             bg='#F44336',
+                             fg='white',
+                             activebackground='#D32F2F',
+                             activeforeground='white',
+                             relief='flat',
+                             bd=0,
+                             padx=30,
+                             pady=12,
+                             command=self.destroy)
+        cancel_btn.pack(side='right', expand=True, fill='x', padx=5)
+
+        # Effetti hover
+        confirm_btn.bind("<Enter>", lambda e: confirm_btn.config(bg='#388E3C'))
+        confirm_btn.bind("<Leave>", lambda e: confirm_btn.config(bg='#4CAF50'))
+        cancel_btn.bind("<Enter>", lambda e: cancel_btn.config(bg='#D32F2F'))
+        cancel_btn.bind("<Leave>", lambda e: cancel_btn.config(bg='#F44336'))
 
     def confirm(self):
-        messagebox.showinfo("Successo", "Prodotto erogato!")
+        messagebox.showinfo("Acquisto confermato", 
+                          f"Hai acquistato: {self.product.upper()}",
+                          parent=self)
         self.master.show_frame(HomeFrame)
         self.destroy()
 
 if __name__ == "__main__":
-    app = VendingMachine()
+    app = DarkVendingMachine()
     app.mainloop()
