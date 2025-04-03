@@ -291,7 +291,7 @@ class ConfirmWindow(tk.Toplevel):
                           f"Hai acquistato: {self.product.upper()}",
                           parent=self)
         self.master.show_frame(HomeFrame)
-        self.destroy()
+        self.destroy()  
 
 if __name__ == "__main__":
     app = DarkVendingMachine()
