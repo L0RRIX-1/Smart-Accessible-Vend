@@ -44,7 +44,7 @@ products = {
 class DarkVendingMachine(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("DARK VEND")
+        self.title("S.A.V - Smart Accessible Vend")
         self.geometry("1200x800")  # Schermo più ampio
         self.configure(bg=DARK_BG)
         
